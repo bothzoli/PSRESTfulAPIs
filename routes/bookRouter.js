@@ -25,7 +25,16 @@ function router(Book) {
     });
   });
   bookRouter.route('/books/:bookId')
-    .get((req, res) => res.json(req.book))
+    .get((req, res) => {
+      const returnBook = req.book.toJSON();
+
+      returnBook.links = {};
+      const author = encodeURI(req.book.author);
+      const genre = encodeURI(req.book.genre);
+      returnBook.links.filterByAuthor = `http://${req.headers.host}/api/books/?author=${author}`;
+      returnBook.links.filterByGenre = `http://${req.headers.host}/api/books/?genre=${genre}`;
+      res.json(returnBook);
+    })
     .put((req, res) => {
       const { book } = req;
       book.title = req.body.title;

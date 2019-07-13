@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 function bookController(Book) {
   function post(req, res) {
     const book = new Book(req.body);
@@ -21,11 +22,20 @@ function bookController(Book) {
     if (req.query.genre) {
       query.genre = req.query.genre;
     }
+    if (req.query.author) {
+      query.author = req.query.author;
+    }
     Book.find(query, (err, books) => {
       if (err) {
         return res.send(err);
       }
-      return res.json(books);
+      const returnBooks = books.map((book) => {
+        const returnBook = book.toJSON();
+        returnBook.links = {};
+        returnBook.links.self = `http://${req.headers.host}/api/books/${book._id}`;
+        return returnBook;
+      });
+      return res.json(returnBooks);
     });
   }
 
